@@ -4,7 +4,7 @@
 
 import express from 'express';
 import sqlite3 from 'sqlite3';
-import fs from 'fs';
+//import fs from 'fs';
 
 import { applyRateLimiting, applyLooseCORSPolicy, applyBodyParsing, applyLogging, applyErrorCatching } from './api-middleware.js'
 
@@ -12,11 +12,12 @@ const app = express();
 const port = 53715;
 
 const GET_TASK_SQL = 'SELECT * FROM Tasks;';
-const INSERT_TASK_SQL = 'INSERT INTO Tasks(task) VALUES (?) RETURNING id;';
+const INSERT_TASK_SQL = "INSERT INTO Tasks(task) VALUES (?) RETURNING id;";
 const DELETE_TASK_SQL = "DELETE FROM Tasks WHERE id = ?;";
+const UPDATE_TASK_SQL = "UPDATE Tasks SET task = ? WHERE id = ?;"
 
 const FS_DB = process.env['Tasks_DB_LOC'] ?? "./db.db";
-const FS_INIT_SQL = "./includes/init.sql";
+//const FS_INIT_SQL = "./includes/init.sql";
 
 const db = await new sqlite3.Database(FS_DB, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
 db.serialize(() => {
@@ -63,6 +64,50 @@ app.post('/api/tasks', (req, res) => {
         stmt.finalize();
     }
 })
+
+app.delete('/api/tasks/:taskId', (req, res) => {
+    const taskId = req.params.taskId;
+
+    const stmt = db.prepare(DELETE_TASK_SQL).get(taskId, (err, ret) => {
+        if (err) {
+            res.status(500).send({
+                msg: "Something went wrong",
+                err: err
+            });
+        } else {
+            res.status(200).send({
+                msg: "Successfully deleted task",
+            })
+        }
+    })
+    stmt.finalize();
+});
+
+app.post('/api/tasks/:taskId/:task', (req, res) => {
+    const taskId = req.params.taskId;
+    const task = req.params.task;
+
+    console.log(taskId)
+    console.log(task)
+
+    // if (task != "" || !taskId) {
+    //     const stmt = db.prepare(UPDATE_TASK_SQL).get(task, taskId, (err, ret) => {
+    //         if (err) {
+    //             res.status(500).send({
+    //                 msg: "Something went wrong!",
+    //                 err: err
+    //             });
+    //         } else {
+    //             res.status(200).send({
+    //                 msg: "Successfully added task!",
+    //             })
+    //         }
+    //     })
+    //     stmt.finalize();
+    // }
+});
+
+applyErrorCatching(app);
 
 // Open server for business!
 app.listen(port, () => {

@@ -1,11 +1,13 @@
 import { useState } from "react"
+import { Button } from "react-bootstrap";
 
 
 export default function Task(props) {
 
-    let [name, setName] = useState(props.name);
+    let [task, setTask] = useState(props.task);
 
     return <div>
-        <input value={name} onChange={(e) => setName(e.target.value)}></input>
+        <input value={task} onChange={(e) => setTask(e.target.value)}></input>
+        <Button onClick={() => props.delete(props.id)}>X</Button>
     </div>
 }

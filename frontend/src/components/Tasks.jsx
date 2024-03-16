@@ -29,25 +29,63 @@ export default function Tasks(props) {
             })
         })
             .then(res => {
-                if (res.ok) {
-                    alert("task added")
-                    refreshTasks
+                if (!res.ok) {
+                    alert("Something went wrong!");
                 } else {
-                    alert("Something went wrong!")
+                    refreshTasks();
                 }
             })
-        refreshTasks()
+    }
+
+    const deleteTask = (taskId) => {
+        fetch(`http://localhost:53715/api/tasks/${taskId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(res => {
+                if (!res.ok) {
+                    alert("Something went wrong");
+                } else {
+                    refreshTasks();
+                }
+            })
+
+    }
+
+    const saveTasks = () => {
+        tasks.map(task => {
+            fetch(`http://localhost:53715/api/tasks/${task.id}/${task.task}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        alert("Something went wrong");
+                    } else {
+                        refreshTasks();
+                    }
+                })
+        })
+    }
+
+    const updateTasks = () => {
+
     }
 
     return <>
-        <p>Tasks</p>
-        <Form>
-            <Form.Label htmlFor='task'>Task</Form.Label>
+        <h1>Tasks</h1>
+        <Form onSubmit={addTask}>
+            <Form.Label htmlFor='task'>Task: </Form.Label>
             <Form.Control id='task' onChange={(e) => setTask(e.target.value)}></Form.Control>
             <Button onClick={addTask}>Add Task</Button>
         </Form>
         {
-            tasks.map(task => <Task name={task.task} id={task.id} key={task.id} />)
+            tasks.map(task => <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} udpate={updateTasks}/>)
         }
+        <Button onClick={saveTasks}>Save</Button>
     </>
 }
