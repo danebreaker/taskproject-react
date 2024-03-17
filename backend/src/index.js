@@ -16,6 +16,7 @@ const FS_DB = process.env['Tasks_DB_LOC'] ?? "./db.db";
 const db = await new sqlite3.Database(FS_DB, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
 db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS Tasks (id INTEGER PRIMARY KEY UNIQUE, task TEXT NOT NULL)");
+    db.run("CREATE TABLE IF NOT EXISTS Login (username TEXT NOT NULL PRIMARY KEY UNIQUE, password TEXT NOT NULL)");
 });
 
 applyRateLimiting(app);
@@ -98,6 +99,8 @@ app.post('/api/tasks/:taskId/:task', (req, res) => {
         stmt.finalize();
     }
 });
+
+app.post('/api/login')
 
 applyErrorCatching(app);
 
