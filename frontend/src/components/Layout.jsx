@@ -1,4 +1,4 @@
-import { Nav, Navbar} from "react-bootstrap";
+import { Nav, Navbar } from "react-bootstrap";
 import { Link, Outlet } from "react-router-dom";
 
 export default function Layout(props) {
@@ -9,6 +9,8 @@ export default function Layout(props) {
                 <Nav.Link as={Link} to="login">Login</Nav.Link>
             </Nav>
         </Navbar>
-        <Outlet />
+        <div>
+            <Outlet />
+        </div>
     </>
 }

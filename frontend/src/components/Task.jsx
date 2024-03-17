@@ -7,7 +7,10 @@ export default function Task(props) {
     let [task, setTask] = useState(props.task);
 
     return <div>
-        <input value={task} onChange={(e) => setTask(e.target.value)}></input>
+        <input value={task} onChange={(e) => {
+            setTask(e.target.value);
+            props.update(props.id, e.target.value);
+        }}></input>
         <Button onClick={() => props.delete(props.id)}>X</Button>
     </div>
 }

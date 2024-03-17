@@ -19,6 +19,7 @@ export default function Tasks(props) {
     useEffect(refreshTasks, [])
 
     const addTask = (e) => {
+
         fetch("http://localhost:53715/api/tasks", {
             method: "POST",
             headers: {
@@ -38,6 +39,11 @@ export default function Tasks(props) {
     }
 
     const deleteTask = (taskId) => {
+
+        let temp = tasks;
+        temp = temp.splice(taskId-1, 1);
+        setTasks(temp);
+
         fetch(`http://localhost:53715/api/tasks/${taskId}`, {
             method: "DELETE",
             headers: {
@@ -72,8 +78,10 @@ export default function Tasks(props) {
         })
     }
 
-    const updateTasks = () => {
-
+    const updateTask = (taskId, task) => {
+        let temp = tasks;
+        temp.filter(ctask => ctask.id === taskId)[0].task = task;
+        setTasks(temp);
     }
 
     return <>
@@ -84,7 +92,7 @@ export default function Tasks(props) {
             <Button onClick={addTask}>Add Task</Button>
         </Form>
         {
-            tasks.map(task => <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} udpate={updateTasks}/>)
+            tasks.map(task => <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/>)
         }
         <Button onClick={saveTasks}>Save</Button>
     </>

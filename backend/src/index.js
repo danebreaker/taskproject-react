@@ -1,10 +1,5 @@
-// !!! IMPORTANT !!!
-// Be sure to run 'npm run dev' from a
-// terminal in the 'backend' directory!
-
 import express from 'express';
 import sqlite3 from 'sqlite3';
-//import fs from 'fs';
 
 import { applyRateLimiting, applyLooseCORSPolicy, applyBodyParsing, applyLogging, applyErrorCatching } from './api-middleware.js'
 
@@ -17,12 +12,9 @@ const DELETE_TASK_SQL = "DELETE FROM Tasks WHERE id = ?;";
 const UPDATE_TASK_SQL = "UPDATE Tasks SET task = ? WHERE id = ?;"
 
 const FS_DB = process.env['Tasks_DB_LOC'] ?? "./db.db";
-//const FS_INIT_SQL = "./includes/init.sql";
 
 const db = await new sqlite3.Database(FS_DB, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
 db.serialize(() => {
-    //const INIT_SQL = fs.readFileSync(FS_INIT_SQL).toString();
-    //INIT_SQL.replaceAll(/\t\r\n/g, ' ').split(';').filter(str => str).forEach((stmt) => db.run(stmt + ';'));
     db.run("CREATE TABLE IF NOT EXISTS Tasks (id INTEGER PRIMARY KEY UNIQUE, task TEXT NOT NULL)");
 });
 
@@ -90,21 +82,21 @@ app.post('/api/tasks/:taskId/:task', (req, res) => {
     console.log(taskId)
     console.log(task)
 
-    // if (task != "" || !taskId) {
-    //     const stmt = db.prepare(UPDATE_TASK_SQL).get(task, taskId, (err, ret) => {
-    //         if (err) {
-    //             res.status(500).send({
-    //                 msg: "Something went wrong!",
-    //                 err: err
-    //             });
-    //         } else {
-    //             res.status(200).send({
-    //                 msg: "Successfully added task!",
-    //             })
-    //         }
-    //     })
-    //     stmt.finalize();
-    // }
+    if (task != "" || !taskId) {
+        const stmt = db.prepare(UPDATE_TASK_SQL).get(task, taskId, (err, ret) => {
+            if (err) {
+                res.status(500).send({
+                    msg: "Something went wrong!",
+                    err: err
+                });
+            } else {
+                res.status(200).send({
+                    msg: "Successfully added task!",
+                })
+            }
+        })
+        stmt.finalize();
+    }
 });
 
 applyErrorCatching(app);
