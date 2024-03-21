@@ -100,7 +100,7 @@ app.post('/api/tasks/:taskId/:task', (req, res) => {
     }
 });
 
-app.post('/api/login')
+//app.post('/api/login')
 
 applyErrorCatching(app);
 
