@@ -108,3 +108,5 @@ applyErrorCatching(app);
 app.listen(port, () => {
     console.log(`My API has been opened on :${port}`)
 });
+
+module.exports = app;
