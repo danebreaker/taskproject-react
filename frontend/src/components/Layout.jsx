@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import { Link, Outlet } from "react-router-dom";
 
@@ -6,6 +6,11 @@ export default function Layout(props) {
 
     let [loggedIn, setLoggedIn] = useState(false);
     let [username, setUsername] = useState("");
+
+    useEffect(() => {
+        const username = sessionStorage.getItem("username");
+        username ? () => {setUsername(JSON.parse(username)); setLoggedIn(true);} : sessionStorage.setItem("username", undefined);
+    }, [])
 
     return <>
         <Navbar>
@@ -20,7 +25,7 @@ export default function Layout(props) {
             </Nav>
         </Navbar>
         <div>
-            <Outlet />
+            <Outlet loggedIn={loggedIn} setLoggedIn={setLoggedIn} username={username} setUsername={setUsername}/>
         </div>
     </>
 }

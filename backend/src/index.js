@@ -7,15 +7,17 @@ const app = express();
 const port = 53715;
 
 const GET_TASK_SQL = 'SELECT * FROM Tasks;';
-const INSERT_TASK_SQL = "INSERT INTO Tasks(task) VALUES (?) RETURNING id;";
+const INSERT_TASK_SQL = "INSERT INTO Tasks(task) VALUES (?, ?) RETURNING id;";
 const DELETE_TASK_SQL = "DELETE FROM Tasks WHERE id = ?;";
 const UPDATE_TASK_SQL = "UPDATE Tasks SET task = ? WHERE id = ?;"
+const LOGIN_SUBMIT_SQL = ""
+const REGSISTER_SUBMIT_SQL = ""
 
 const FS_DB = process.env['Tasks_DB_LOC'] ?? "./db.db";
 
 const db = await new sqlite3.Database(FS_DB, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
 db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS Tasks (id INTEGER PRIMARY KEY UNIQUE, task TEXT NOT NULL)");
+    db.run("CREATE TABLE IF NOT EXISTS Tasks (id INTEGER PRIMARY KEY UNIQUE, task TEXT NOT NULL, user TEXT NOT NULL UNIQUE)");
     db.run("CREATE TABLE IF NOT EXISTS Login (username TEXT NOT NULL PRIMARY KEY UNIQUE, password TEXT NOT NULL)");
 });
 
@@ -40,8 +42,9 @@ app.get('/api/tasks', (req, res) => {
 
 app.post('/api/tasks', (req, res) => {
     const task = req.body.task;
+    const user = JSON.parse(sessionStorage.getItem("username"));
     if (task != "") {
-        const stmt = db.prepare(INSERT_TASK_SQL).get(task, (err, ret) => {
+        const stmt = db.prepare(INSERT_TASK_SQL).get(task, user, (err, ret) => {
             if (err) {
                 res.status(500).send({
                     msg: "Something went wrong!",
@@ -92,7 +95,7 @@ app.post('/api/tasks/:taskId/:task', (req, res) => {
                 });
             } else {
                 res.status(200).send({
-                    msg: "Successfully added task!",
+                    msg: "Successfully added task!"
                 })
             }
         })
@@ -100,7 +103,53 @@ app.post('/api/tasks/:taskId/:task', (req, res) => {
     }
 });
 
-//app.post('/api/login')
+app.post('/api/login/:username/:password', (req, res) => {
+    const username = req.params.username;
+    const password = req.params.password;
+
+    console.log(username);
+    console.log(password);
+
+    if (!username || !password) {
+        const stmt = db.prepare(LOGIN_SUBMIT_SQL).get(username, password, (err, ret) => {
+            if (err) {
+                res.status(500).send({
+                    msg: "Something went wrong!",
+                    err: err
+                })
+            } else {
+                res.status(200).send({
+                    msg: "Successfully logged in!"
+                })
+            }
+        })
+        stmt.finalize();
+    }
+});
+
+app.post('/api/register/:username/:password', (req, res) => {
+    const username = req.params.username;
+    const password = req.params.password;
+
+    console.log(username);
+    console.log(password);
+
+    if (!username || !password) {
+        const stmt = db.prepare(REGSISTER_SUBMIT_SQL).get(username, password, (err, ret) => {
+            if (err) {
+                res.status(500).send({
+                    msg: "Something went wrong!",
+                    err: err
+                })
+            } else {
+                res.status(200).send({
+                    msg: "Successfully registered new account!"
+                })
+            }
+        })
+        stmt.finalize();
+    }
+});
 
 applyErrorCatching(app);
 

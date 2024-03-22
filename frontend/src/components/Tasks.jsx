@@ -39,7 +39,6 @@ export default function Tasks(props) {
     }
 
     const deleteTask = (taskId) => {
-
         let temp = tasks;
         temp = temp.splice(taskId-1, 1);
         setTasks(temp);
@@ -92,7 +91,7 @@ export default function Tasks(props) {
             <Button onClick={addTask}>Add Task</Button>
         </Form>
         {
-            tasks.map(task => <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/>)
+            tasks.map(task => (task.user === JSON.parse(sessionStorage.getItem("username")) ? <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/> : <></>))
         }
         <Button onClick={saveTasks}>Save</Button>
     </>

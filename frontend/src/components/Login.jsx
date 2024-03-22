@@ -12,6 +12,9 @@ export default function Login(props) {
         console.log("Login Request");
 
         // Set session storage to logged in and username
+        sessionStorage.setItem('username', username.current.value);
+        //props.setLoggedIn(true);
+        console.log(props)
     }
 
     return <>
