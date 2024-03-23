@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import { Link, Outlet } from "react-router-dom";
 
+import LoggedInContext from "../contexts/LoggedInContext"
+
 export default function Layout(props) {
 
     let [loggedIn, setLoggedIn] = useState(false);
@@ -25,7 +27,9 @@ export default function Layout(props) {
             </Nav>
         </Navbar>
         <div>
-            <Outlet loggedIn={loggedIn} setLoggedIn={setLoggedIn} username={username} setUsername={setUsername}/>
+            <LoggedInContext.Provider value={[loggedIn, setLoggedIn]}>
+                <Outlet/>
+            </LoggedInContext.Provider>
         </div>
     </>
 }

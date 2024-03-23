@@ -1,4 +1,9 @@
+import { useContext, useEffect } from "react"
+import LoggedInContext from "../contexts/LoggedInContext"
+
 export default function Logout(props) {
+
+    const setLoggedIn = useContext(LoggedInContext)[1];
 
     useEffect(() => {
         logout
@@ -10,8 +15,7 @@ export default function Logout(props) {
 
         // Set session storage to logged out and username empty
         sessionStorage.setItem('username', undefined);
-        props.loggedIn[1](false);
-        //console.log(props.loggedIn[1]);
+        setLoggedIn(false);
     }
 
     return <>

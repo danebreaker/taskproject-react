@@ -1,11 +1,14 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import { Button, Form, Nav } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import LoggedInContext from "../contexts/LoggedInContext";
 
 export default function Login(props) {
 
     const username = useRef();
     const password = useRef();
+
+    const setLoggedIn = useContext(LoggedInContext)[1];
 
     const loginSubmit = () => {
         // API login request
@@ -13,8 +16,9 @@ export default function Login(props) {
 
         // Set session storage to logged in and username
         sessionStorage.setItem('username', username.current.value);
-        //props.setLoggedIn(true);
-        console.log(props)
+        setLoggedIn(true);
+
+        useNavigate("Tasks");
     }
 
     return <>

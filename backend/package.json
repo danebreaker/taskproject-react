@@ -209,7 +209,7 @@
   },
   "scripts": {
     "start": "nodemon index.js"
-    },
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

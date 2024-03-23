@@ -1,12 +1,14 @@
 import { Button, Form } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 
 import Task from "./Task";
+import LoggedInContext from "../contexts/LoggedInContext";
 
 export default function Tasks(props) {
 
     let [tasks, setTasks] = useState([]);
     let [task, setTask] = useState("");
+    let loggedIn = useContext(LoggedInContext)[0];
 
     const refreshTasks = () => {
         fetch("http://localhost:53715/api/tasks")
@@ -85,14 +87,24 @@ export default function Tasks(props) {
 
     return <>
         <h1>Tasks</h1>
-        <Form onSubmit={addTask}>
-            <Form.Label htmlFor='task'>Task: </Form.Label>
-            <Form.Control id='task' onChange={(e) => setTask(e.target.value)}></Form.Control>
-            <Button onClick={addTask}>Add Task</Button>
-        </Form>
         {
-            tasks.map(task => (task.user === JSON.parse(sessionStorage.getItem("username")) ? <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/> : <></>))
+            loggedIn ?
+            <>
+                <Form onSubmit={addTask}>
+                    <Form.Label htmlFor='task'>Task: </Form.Label>
+                    <Form.Control id='task' onChange={(e) => setTask(e.target.value)}></Form.Control>
+                    <Button onClick={addTask}>Add Task</Button>
+                </Form>
+            
+                {tasks.map(task => (task.user === sessionStorage.getItem("username")) ? 
+                <><Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/>
+                <Button onClick={saveTasks}>Save</Button></>
+                : 
+                <></>)}
+            </>
+            :
+            <p>You must be logged in to create tasks</p>
         }
-        <Button onClick={saveTasks}>Save</Button>
+        
     </>
 }
