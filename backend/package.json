@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon server api",
-    "prod": "node index.js"
+    "prod": "node index.js",
+    "vercel-build": "echo hello"
   },
   "author": "",
   "license": "MIT",
