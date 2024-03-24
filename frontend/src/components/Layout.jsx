@@ -7,19 +7,16 @@ import LoggedInContext from "../contexts/LoggedInContext"
 export default function Layout(props) {
 
     let [loggedIn, setLoggedIn] = useState(false);
-    let [username, setUsername] = useState(undefined);
+    let [username, setUsername] = useState("");
 
     useEffect(() => {
-        const username = sessionStorage.getItem("username");
-        if (username !== "undefined") {
-            console.log("one"); 
-            setUsername(username); 
+        const storedUsername = sessionStorage.getItem("username");
+        if (storedUsername && storedUsername !== "") {
+            setUsername(storedUsername); 
             setLoggedIn(true);
         } else {
-            console.log("two"); 
-            sessionStorage.setItem("username", undefined);
+            sessionStorage.setItem("username", "");
         }
-        //username != undefined ? () => { console.log("one"); setUsername(JSON.parse(username)); setLoggedIn(true); } : () => {console.log("two"); sessionStorage.setItem("username", undefined);};
     }, [])
 
     return <>

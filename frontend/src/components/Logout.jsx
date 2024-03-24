@@ -14,7 +14,7 @@ export default function Logout(props) {
         console.log("Logout Request")
 
         // Set session storage to logged out and username empty
-        sessionStorage.setItem('username', undefined);
+        sessionStorage.setItem('username', "");
         setLoggedIn(false);
     }, [])
 

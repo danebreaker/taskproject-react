@@ -8,20 +8,20 @@ export default function Tasks(props) {
 
     let [tasks, setTasks] = useState([]);
     let [task, setTask] = useState("");
-    let [loggedIn, setLoggedIn] = useState(useContext(LoggedInContext)[0]);
-    let [username, setUsername] = useState(useContext(LoggedInContext)[2]);
+    let loggedIn = useContext(LoggedInContext)[0];
+    let username = useContext(LoggedInContext)[2];
 
     const refreshTasks = () => {
         fetch("http://localhost:53715/api/tasks")
             .then(res => res.json())
             .then(data => {
                 setTasks(data);
-                console.log(loggedIn);
-                console.log(username);
             })
     }
 
-    useEffect(refreshTasks, [])
+    useEffect(() => {
+        refreshTasks();
+    }, [])
 
     const addTask = (e) => {
         fetch("http://localhost:53715/api/tasks", {
@@ -46,7 +46,7 @@ export default function Tasks(props) {
 
     const deleteTask = (taskId) => {
         let temp = tasks;
-        temp = temp.splice(taskId-1, 1);
+        temp = temp.splice(taskId - 1, 1);
         setTasks(temp);
 
         fetch("http://localhost:53715/api/tasks", {
@@ -100,25 +100,25 @@ export default function Tasks(props) {
         <h1>Tasks</h1>
         {
             loggedIn ?
-            <>
-                <Form onSubmit={addTask}>
-                    <Form.Label htmlFor='task'>Task: </Form.Label>
-                    <Form.Control id='task' onChange={(e) => setTask(e.target.value)}></Form.Control>
-                    <Button onClick={addTask}>Add Task</Button>
-                </Form>
-            
-                {
-                    tasks.map(task => {
-                        if (task.user === username) {
-                            return <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/>
-                        }
-                    })
-                }
-                <Button onClick={saveTasks}>Save</Button>
-            </>
-            :
-            <p>You must be logged in to create tasks</p>
+                <>
+                    <Form onSubmit={addTask}>
+                        <Form.Label htmlFor='task'>Task: </Form.Label>
+                        <Form.Control id='task' onChange={(e) => setTask(e.target.value)}></Form.Control>
+                        <Button onClick={addTask}>Add Task</Button>
+                    </Form>
+
+                    {
+                        tasks.map(task => {
+                            if (task.user === username) {
+                                return <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask} />
+                            }
+                        })
+                    }
+                    <Button onClick={saveTasks}>Save</Button>
+                </>
+                :
+                <p>You must be logged in to create tasks</p>
         }
-        
+
     </>
 }
