@@ -8,15 +8,16 @@ export default function Tasks(props) {
 
     let [tasks, setTasks] = useState([]);
     let [task, setTask] = useState("");
-    let loggedIn = useContext(LoggedInContext)[0];
-    let username = useContext(LoggedInContext)[2]
+    let [loggedIn, setLoggedIn] = useState(useContext(LoggedInContext)[0]);
+    let [username, setUsername] = useState(useContext(LoggedInContext)[2]);
 
     const refreshTasks = () => {
         fetch("http://localhost:53715/api/tasks")
             .then(res => res.json())
             .then(data => {
                 setTasks(data);
-                
+                console.log(loggedIn);
+                console.log(username);
             })
     }
 
@@ -38,6 +39,7 @@ export default function Tasks(props) {
                     alert("Something went wrong!");
                 } else {
                     refreshTasks();
+                    setTask("");
                 }
             })
     }
@@ -47,11 +49,14 @@ export default function Tasks(props) {
         temp = temp.splice(taskId-1, 1);
         setTasks(temp);
 
-        fetch(`http://localhost:53715/api/tasks/${taskId}`, {
+        fetch("http://localhost:53715/api/tasks", {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
-            }
+            },
+            body: JSON.stringify({
+                taskId: taskId
+            })
         })
             .then(res => {
                 if (!res.ok) {
@@ -65,11 +70,15 @@ export default function Tasks(props) {
 
     const saveTasks = () => {
         tasks.map(task => {
-            fetch(`http://localhost:53715/api/tasks/${task.id}/${task.task}`, {
+            fetch("http://localhost:53715/api/tasks/save", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
-                }
+                },
+                body: JSON.stringify({
+                    task: task.task,
+                    taskId: task.id
+                })
             })
                 .then(res => {
                     if (!res.ok) {

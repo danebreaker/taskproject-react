@@ -7,18 +7,17 @@ const app = express();
 const port = 53715;
 
 const GET_TASK_SQL = 'SELECT * FROM Tasks;';
-const INSERT_TASK_SQL = "INSERT INTO Tasks(task) VALUES (?, ?) RETURNING id;";
+const INSERT_TASK_SQL = "INSERT INTO Tasks(task, user) VALUES (?, ?) RETURNING id;";
 const DELETE_TASK_SQL = "DELETE FROM Tasks WHERE id = ?;";
-const UPDATE_TASK_SQL = "UPDATE Tasks SET task = ? WHERE id = ?;"
-const LOGIN_SUBMIT_SQL = ""
-const REGISTER_USER_SUBMIT_SQL = "INSERT INTO Login(username) VALUES (?);"
-const REGISTER_PASS_SUBMIT_SQL = "INSERT INTO Login(password) VALUES (?)"
+const UPDATE_TASK_SQL = "UPDATE Tasks SET task = ? WHERE id = ?;";
+const LOGIN_SUBMIT_SQL = "SELECT * from Login WHERE username = ?;";
+const REGISTER_SUBMIT_SQL = "INSERT INTO Login(username, password) VALUES (?, ?);";
 
 const FS_DB = process.env['Tasks_DB_LOC'] ?? "./db.db";
 
 const db = await new sqlite3.Database(FS_DB, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
 db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS Tasks (id INTEGER PRIMARY KEY UNIQUE, task TEXT NOT NULL, user TEXT NOT NULL UNIQUE)");
+    db.run("CREATE TABLE IF NOT EXISTS Tasks (id INTEGER PRIMARY KEY UNIQUE, task TEXT NOT NULL, user TEXT NOT NULL)");
     db.run("CREATE TABLE IF NOT EXISTS Login (username TEXT NOT NULL PRIMARY KEY UNIQUE, password TEXT NOT NULL)");
 });
 
@@ -43,9 +42,10 @@ app.get('/api/tasks', (req, res) => {
 
 app.post('/api/tasks', (req, res) => {
     const task = req.body.task;
-    const user = JSON.parse(sessionStorage.getItem("username"));
+    const username = req.body.username;
+
     if (task != "") {
-        const stmt = db.prepare(INSERT_TASK_SQL).get(task, user, (err, ret) => {
+        const stmt = db.prepare(INSERT_TASK_SQL).get(task, username, (err, ret) => {
             if (err) {
                 res.status(500).send({
                     msg: "Something went wrong!",
@@ -62,8 +62,8 @@ app.post('/api/tasks', (req, res) => {
     }
 })
 
-app.delete('/api/tasks/:taskId', (req, res) => {
-    const taskId = req.params.taskId;
+app.delete('/api/tasks', (req, res) => {
+    const taskId = req.body.taskId;
 
     const stmt = db.prepare(DELETE_TASK_SQL).get(taskId, (err, ret) => {
         if (err) {
@@ -80,14 +80,11 @@ app.delete('/api/tasks/:taskId', (req, res) => {
     stmt.finalize();
 });
 
-app.post('/api/tasks/:taskId/:task', (req, res) => {
-    const taskId = req.params.taskId;
-    const task = req.params.task;
+app.post('/api/tasks/save', (req, res) => {
+    const taskId = req.body.taskId;
+    const task = req.body.task;
 
-    console.log(taskId)
-    console.log(task)
-
-    if (task != "" || !taskId) {
+    if (task && taskId) {
         const stmt = db.prepare(UPDATE_TASK_SQL).get(task, taskId, (err, ret) => {
             if (err) {
                 res.status(500).send({
@@ -104,41 +101,48 @@ app.post('/api/tasks/:taskId/:task', (req, res) => {
     }
 });
 
-app.post('/api/login/:username/:password', (req, res) => {
-    const username = req.params.username;
-    const password = req.params.password;
+app.post('/api/login/', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
 
-    console.log(username);
-    console.log(password);
-
-    if (!username || !password) {
-        const stmt = db.prepare(LOGIN_SUBMIT_SQL).get(username, password, (err, ret) => {
+    if (username && password) {
+        const stmt = db.prepare(LOGIN_SUBMIT_SQL).get(username, (err, ret) => {
             if (err) {
                 res.status(500).send({
                     msg: "Something went wrong!",
                     err: err
                 })
             } else {
-                res.status(200).send({
-                    msg: "Successfully logged in!"
-                })
+                if (!ret) {
+                    res.status(401).send({
+                        msg: "Username does not exist",
+                    })
+                } else if (ret.password !== password) {
+                    res.status(401).send({
+                        msg: "Password does not match",
+                    })
+                } else {
+                    res.status(200).send({
+                        msg: "Successfully logged in!"
+                    })
+                }
             }
         })
         stmt.finalize();
     }
 });
 
-app.post('/api/register/:username/:password', (req, res) => {
-    const username = req.params.username;
-    const password = req.params.password;
+app.post('/api/register/', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
 
     console.log(username);
     console.log(password);
 
-    if (!username || !password) {
-        const stmt = db.prepare(REGSISTER_SUBMIT_SQL).get(username, password, (err, ret) => {
+    if (username && password) {
+        const stmt = db.prepare(REGISTER_SUBMIT_SQL).get(username, password, (err, ret) => {
             if (err) {
-                res.status(500).send({
+                res.status(409).send({
                     msg: "Something went wrong!",
                     err: err
                 })

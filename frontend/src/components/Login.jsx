@@ -9,16 +9,37 @@ export default function Login(props) {
     const password = useRef();
 
     const setLoggedIn = useContext(LoggedInContext)[1];
+    const setUsername = useContext(LoggedInContext)[3];
+
+    const navigate = useNavigate();
 
     const loginSubmit = () => {
         // API login request
-        console.log("Login Request");
+        fetch("http://localhost:53715/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username: username.current.value,
+                password: password.current.value
+            })
+        })
+            .then(res => {
+                if (!res.ok) {
+                    alert("Something went wrong");
+                } else if (res.status === 401) {
+                    alert("Incorrect username or password")
+                } else {
+                    // Set session storage to logged in and username
+                    sessionStorage.setItem('username', username.current.value);
+                    setLoggedIn(true);
+                    setUsername(username.current.value);
 
-        // Set session storage to logged in and username
-        sessionStorage.setItem('username', username.current.value);
-        setLoggedIn(true);
-
-        //useNavigate("Tasks");
+                    alert("Succesfully Logged In as " + username.current.value);
+                    navigate('/Tasks');
+                }
+            })
     }
 
     return <>
