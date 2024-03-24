@@ -26,6 +26,8 @@ applyLooseCORSPolicy(app);
 applyBodyParsing(app);
 applyLogging(app);
 
+app.get("/", (req, res) => res.send("Express on Vercel"));
+
 app.get('/api/tasks', (req, res) => {
     const stmt = db.prepare(GET_TASK_SQL).get().all((err, ret) => {
         if (err) {
