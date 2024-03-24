@@ -11,7 +11,8 @@ const INSERT_TASK_SQL = "INSERT INTO Tasks(task) VALUES (?, ?) RETURNING id;";
 const DELETE_TASK_SQL = "DELETE FROM Tasks WHERE id = ?;";
 const UPDATE_TASK_SQL = "UPDATE Tasks SET task = ? WHERE id = ?;"
 const LOGIN_SUBMIT_SQL = ""
-const REGSISTER_SUBMIT_SQL = ""
+const REGISTER_USER_SUBMIT_SQL = "INSERT INTO Login(username) VALUES (?);"
+const REGISTER_PASS_SUBMIT_SQL = "INSERT INTO Login(password) VALUES (?)"
 
 const FS_DB = process.env['Tasks_DB_LOC'] ?? "./db.db";
 

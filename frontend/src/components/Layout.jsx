@@ -27,7 +27,7 @@ export default function Layout(props) {
             </Nav>
         </Navbar>
         <div>
-            <LoggedInContext.Provider value={[loggedIn, setLoggedIn]}>
+            <LoggedInContext.Provider value={[loggedIn, setLoggedIn, username, setUsername]}>
                 <Outlet/>
             </LoggedInContext.Provider>
         </div>

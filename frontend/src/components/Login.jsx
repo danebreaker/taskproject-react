@@ -18,7 +18,7 @@ export default function Login(props) {
         sessionStorage.setItem('username', username.current.value);
         setLoggedIn(true);
 
-        useNavigate("Tasks");
+        //useNavigate("Tasks");
     }
 
     return <>

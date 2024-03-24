@@ -9,26 +9,28 @@ export default function Tasks(props) {
     let [tasks, setTasks] = useState([]);
     let [task, setTask] = useState("");
     let loggedIn = useContext(LoggedInContext)[0];
+    let username = useContext(LoggedInContext)[2]
 
     const refreshTasks = () => {
         fetch("http://localhost:53715/api/tasks")
             .then(res => res.json())
             .then(data => {
                 setTasks(data);
+                
             })
     }
 
     useEffect(refreshTasks, [])
 
     const addTask = (e) => {
-
         fetch("http://localhost:53715/api/tasks", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                task: task
+                task: task,
+                username: username
             })
         })
             .then(res => {
@@ -96,11 +98,14 @@ export default function Tasks(props) {
                     <Button onClick={addTask}>Add Task</Button>
                 </Form>
             
-                {tasks.map(task => (task.user === sessionStorage.getItem("username")) ? 
-                <><Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/>
-                <Button onClick={saveTasks}>Save</Button></>
-                : 
-                <></>)}
+                {
+                    tasks.map(task => {
+                        if (task.user === username) {
+                            return <Task task={task.task} id={task.id} key={task.id} delete={deleteTask} update={updateTask}/>
+                        }
+                    })
+                }
+                <Button onClick={saveTasks}>Save</Button>
             </>
             :
             <p>You must be logged in to create tasks</p>
