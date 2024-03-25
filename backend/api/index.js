@@ -11,7 +11,7 @@ const INSERT_TASK_SQL = "INSERT INTO Tasks(task, user) VALUES (?, ?) RETURNING i
 const DELETE_TASK_SQL = "DELETE FROM Tasks WHERE id = ?;";
 const UPDATE_TASK_SQL = "UPDATE Tasks SET task = ? WHERE id = ?;";
 const LOGIN_SUBMIT_SQL = "SELECT * from Login WHERE username = ?;";
-const REGISTER_SUBMIT_SQL = "INSERT INTO Login(username, password) VALUES (?, ?);";
+const REGISTER_SUBMIT_SQL = "INSERT INTO Login(username, password) VALUES (?, ?); CREATE TABLE IF NOT EXISTS ? (id INTEGER PRIMARY KEY UNIQUE, task TEXT NOT NULL);";
 
 const FS_DB = process.env['Tasks_DB_LOC'] ?? "./db.db";
 
@@ -142,9 +142,9 @@ app.post('/api/register/', (req, res) => {
     console.log(password);
 
     if (username && password) {
-        const stmt = db.prepare(REGISTER_SUBMIT_SQL).get(username, password, (err, ret) => {
+        let stmt = db.prepare(REGISTER_SUBMIT_SQL).get(username, password, "ahhhhh", (err, ret) => {
             if (err) {
-                res.status(409).send({
+                res.status(500).send({
                     msg: "Something went wrong!",
                     err: err
                 })
@@ -162,7 +162,7 @@ applyErrorCatching(app);
 
 // Open server for business!
 app.listen(port, () => {
-    console.log(`My API has been opened on :${port}`)
+    console.log(`My API has been opened on port: ${port}`)
 });
 
 module.exports = app;
